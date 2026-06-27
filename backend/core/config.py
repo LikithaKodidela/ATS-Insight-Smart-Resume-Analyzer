@@ -41,13 +41,19 @@ APP_VERSION     = '1.0.0'
 APP_DESCRIPTION = 'Analyse resumes against job descriptions using NLP + ML'
 
 # ── CORS ────────────────────────────────────────────────────────────────────
+# Add your deployed Streamlit Cloud URL here via env var (comma-separated):
+#   ALLOWED_ORIGINS=https://yourapp.streamlit.app
+_extra_origins = [
+    o.strip() for o in os.getenv('ALLOWED_ORIGINS', '').split(',') if o.strip()
+]
 ALLOWED_ORIGINS = [
-    "http://localhost:8501",   # Streamlit frontend (primary)
+    "http://localhost:8501",    # Streamlit frontend (local dev)
     "http://127.0.0.1:8501",
-    "http://localhost:8502",   # Streamlit alternate port
-    "http://localhost:5173",   # Vite dev server (React)
-    "http://localhost:3000",   # Create React App fallback
+    "http://localhost:8502",
+    "http://localhost:5173",    # Vite dev server
+    "http://localhost:3000",
     "http://127.0.0.1:5173",
+    *_extra_origins,            # from ALLOWED_ORIGINS env var (production)
 ]
 
 # ── File upload limits ──────────────────────────────────────────────────────
