@@ -1,0 +1,85 @@
+# ── OS & editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+*.code-workspace
+
+# ── AI IDE metadata (not project code) ───────────────────────────────────────
+.repo-ai-resume-ats/
+
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env_dir/
+
+# ── Secrets — NEVER commit these ─────────────────────────────────────────────
+.env
+.env.*
+!.env.example          # allow the example template
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.streamlit/secrets.toml
+*.pem
+*.key
+*.p12
+*.pfx
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── ML / AI model weights (large binary files) ───────────────────────────────
+*.safetensors
+*.pkl
+*.bin
+*.pt
+*.pth
+*.onnx
+*.h5
+backend/ml_models/*
+!backend/ml_models/README.md
+
+# ── Datasets ─────────────────────────────────────────────────────────────────
+*.csv
+colab_notebooks/data/*.json
+colab_notebooks/data/*.jsonl
+
+# ── Uploads / temp files ──────────────────────────────────────────────────────
+uploads/
+tmp/
+temp/
+*.pdf
+!frontend/assets/**/*.pdf
+
+# ── Streamlit (─secrets only, not the whole directory) ───────────────────────────
+# Do NOT exclude the whole .streamlit/ dir — that also blocks *.example files.
+# Instead, exclude only the actual secrets file.
+frontend/.streamlit/secrets.toml
+.streamlit/secrets.toml
+
+# ── Coverage / test artifacts ─────────────────────────────────────────────────
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# ── Node (if any frontend tooling added later) ────────────────────────────────
+node_modules/
