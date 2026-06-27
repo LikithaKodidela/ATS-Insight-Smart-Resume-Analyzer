@@ -215,6 +215,20 @@ def google_oauth_url() -> Dict[str, Any]:
             'provider': 'google',
             'options': {'redirect_to': OAUTH_REDIRECT_URL},
         })
+
+        # Save the PKCE code verifier to session_state NOW — before the redirect.
+        # Streamlit re-renders the entire script when the OAuth redirect comes back,
+        # which resets the Supabase client's in-memory storage and loses the verifier.
+        # Storing it in session_state survives that re-render.
+        try:
+            storage_key = f'{client.auth._storage_key}-code-verifier'
+            code_verifier = client.auth._storage.get_item(storage_key)
+            if code_verifier:
+                st.session_state['_pkce_code_verifier'] = code_verifier
+                logger.info('PKCE code verifier saved to session_state')
+        except Exception:
+            pass  # Non-critical — exchange_code_for_session has its own fallback
+
         return {'url': resp.url}
     except Exception as exc:
         logger.warning(f'google_oauth_url failed: {exc}')
@@ -231,9 +245,18 @@ def exchange_code_for_session(auth_code: str) -> Dict[str, Any]:
         return {'error': client}
 
     try:
-        # Retrieve PKCE code verifier from the client's internal storage
-        storage_key   = f'{client.auth._storage_key}-code-verifier'
-        code_verifier = client.auth._storage.get_item(storage_key) or ''
+        # 1st choice: read from session_state (saved before the redirect in google_oauth_url)
+        # 2nd choice: try the client's in-memory storage (may survive if no re-render happened)
+        # 3rd choice: empty string (will fail gracefully with a clear error)
+        code_verifier = st.session_state.pop('_pkce_code_verifier', None)
+        if not code_verifier:
+            try:
+                storage_key   = f'{client.auth._storage_key}-code-verifier'
+                code_verifier = client.auth._storage.get_item(storage_key) or ''
+            except Exception:
+                code_verifier = ''
+
+        logger.info(f'exchange_code_for_session: verifier present={bool(code_verifier)}')
 
         resp = client.auth.exchange_code_for_session({
             'auth_code':     auth_code,

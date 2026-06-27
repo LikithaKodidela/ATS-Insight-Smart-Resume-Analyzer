@@ -1,30 +1,39 @@
 import os
-import json 
+import json
 import logging
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from typing import Dict
 
+import httpx
+import certifi
 from groq import Groq
 
-logger=logging.getLogger('ats_resume_scorer')
+logger = logging.getLogger('ats_resume_scorer')
 
 # Thread pool for blocking Groq HTTP calls — keeps FastAPI event loop free.
 _executor = ThreadPoolExecutor(max_workers=4)
 
+GROQ_MODEL = 'llama-3.3-70b-versatile'
 
-GROQ_MODEL='llama-3.3-70b-versatile'
+_client = None
 
-_client=None
 
-def _get_client()->Groq:
+def _get_client() -> Groq:
     global _client
     if _client is None:
-        api_key=os.getenv('GROQ_API_KEY')
-
+        api_key = os.getenv('GROQ_API_KEY', '').strip()
         if not api_key:
             raise ValueError("GROQ_API_KEY environment variable not set")
-        _client=Groq(api_key=api_key)
+
+        # Explicitly set the SSL cert bundle so httpx (used inside the Groq SDK)
+        # can verify TLS connections from inside HF Spaces Docker containers.
+        _http_client = httpx.Client(
+            verify=certifi.where(),
+            timeout=httpx.Timeout(120.0),
+        )
+        _client = Groq(api_key=api_key, http_client=_http_client)
+        logger.info("Groq client initialised with explicit certifi SSL bundle")
     return _client
 
 RESUME_SYSTEM_PROMPT = (
