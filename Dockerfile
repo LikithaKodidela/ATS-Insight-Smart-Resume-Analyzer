@@ -33,7 +33,8 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 # ── Download NLP models at build time ─────────────────────────────────────────
 # Baking models into the image avoids slow first-request downloads
-RUN python -m spacy download en_core_web_sm
+RUN python -m spacy download en_core_web_md && \
+    python -m spacy download en_core_web_sm
 
 # Pre-download sentence-transformer model weights into the image cache
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2'); print('Model cached OK')"
