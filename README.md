@@ -101,16 +101,36 @@ The model is automatically loaded at startup — no manual configuration needed.
 
 ## Deployment Notes
 
-### Backend (FastAPI)
-- Set `DEV_AUTH_BYPASS=false`
-- Set all Supabase env vars
-- Use `gunicorn -w 4 -k uvicorn.workers.UvicornWorker backend.main:app`
-- The fine-tuned model folder must be included (or mounted as a volume)
+### Backend — Hugging Face Spaces (Live)
+- **URL**: https://likitha-chowdary-ats-insight-backend.hf.space
+- **Swagger UI**: https://likitha-chowdary-ats-insight-backend.hf.space/docs
+- **Health check**: https://likitha-chowdary-ats-insight-backend.hf.space/api/v1/health
+- Set all secrets in HF Space Settings → Secrets (not Variables):
+  `GROQ_API_KEY`, `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_ANON_KEY`, `DEV_AUTH_BYPASS=false`, `ALLOWED_ORIGINS`
 
-### Frontend (Streamlit Cloud)
-- Configure `secrets.toml` values in the Streamlit Cloud Secrets UI
-- Set `backend.url` to your deployed backend URL (e.g., Railway, Render)
-- Set `supabase.SUPABASE_URL` and `supabase.SUPABASE_ANON_KEY`
+### Frontend — Streamlit Cloud (Live)
+- **URL**: https://ats-insight-smart-resume-analyzer-7dahjnfufzyr96i39qnqvt.streamlit.app
+- Set secrets in Streamlit App → Settings → Secrets:
+  ```toml
+  [supabase]
+  SUPABASE_URL      = "https://fjsluiqgpxlosxovkxee.supabase.co"
+  SUPABASE_ANON_KEY = "<anon_key>"
+
+  [google_oauth]
+  redirect_uri = "https://ats-insight-smart-resume-analyzer-7dahjnfufzyr96i39qnqvt.streamlit.app"
+
+  [backend]
+  url = "https://likitha-chowdary-ats-insight-backend.hf.space"
+  ```
+
+### Google OAuth Setup
+For Google sign-in to work in production:
+1. **Google Cloud Console** → APIs & Services → Credentials → OAuth 2.0 Client:
+   - Authorized redirect URIs: `https://fjsluiqgpxlosxovkxee.supabase.co/auth/v1/callback`
+   - Authorized JavaScript origins: `https://ats-insight-smart-resume-analyzer-7dahjnfufzyr96i39qnqvt.streamlit.app`
+2. **Supabase** → Authentication → URL Configuration:
+   - Site URL: `https://ats-insight-smart-resume-analyzer-7dahjnfufzyr96i39qnqvt.streamlit.app`
+   - Redirect URLs: `https://ats-insight-smart-resume-analyzer-7dahjnfufzyr96i39qnqvt.streamlit.app`
 
 ---
 
